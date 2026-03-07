@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreakMate Habit Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="aria-announcer" aria-live="polite" class="visually-hidden"></div>
+
+    <div class="container mt-5">
+        <header class="text-center mb-5">
+            <h1 class="display-4 text-primary fw-bold">StreakMate</h1>
+            <p class="lead text-muted">Build consistency and track your daily progress</p>
+        </header>
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h5 class="mb-0">New Habit</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="createHabitForm">
+                            <div class="mb-3">
+                                <label for="habitTitle" class="form-label fw-semibold">Habit Title *</label>
+                                <input type="text" class="form-control" id="habitTitle" required placeholder="e.g. Read for 30 mins">
+                            </div>
+                            <div class="mb-3">
+                                <label for="habitDesc" class="form-label fw-semibold">Description</label>
+                                <textarea class="form-control" id="habitDesc" rows="2" placeholder="Optional details..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="habitFreq" class="form-label fw-semibold">Frequency</label>
+                                <select class="form-select" id="habitFreq">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="habitGoal" class="form-label fw-semibold">Weekly Goal (1-7)</label>
+                                <input type="number" class="form-control" id="habitGoal" min="1" max="7" value="7">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">Add Habit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>My Habits</h3>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="fetchHabits()">Refresh List</button>
+                </div>
+                <div id="habitList" class="row g-3">
+                    <div class="text-center py-5 text-muted">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2">Connecting to server...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

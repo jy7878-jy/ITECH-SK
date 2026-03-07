@@ -1,0 +1,41 @@
+/* Base styles and high contrast colors */
+body {
+    background-color: #f0f2f5;
+    color: #1c1e21;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Card hover animations for better UX */
+.card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.06) !important;
+}
+
+/* Accessibility: WCAG 2.4.7 Focus Visible implementation */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    outline: 3px solid #0d6efd !important;
+    outline-offset: 3px !important;
+}
+
+/* Screen reader only class for Accessibility */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Badge styling for better readability */
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+}

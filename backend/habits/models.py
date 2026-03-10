@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q
 
@@ -25,9 +25,9 @@ class Habit(models.Model):
         default="daily",
     )
 
-    goal_per_week = models.PositiveSmallIntegerField(
-        default=7,
-        validators=[MinValueValidator(1), MaxValueValidator(7)],
+    goal_per_week = models.PositiveIntegerField(
+        default=3,
+        validators=[MinValueValidator(1)],
     )
 
     is_active = models.BooleanField(default=True)
@@ -37,8 +37,13 @@ class Habit(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["user", "title"], name="uniq_user_title"),
             models.CheckConstraint(
+<<<<<<< Updated upstream
                 check=Q(goal_per_week__gte=1) & Q(goal_per_week__lte=7),
                 name="chk_goal_per_week_1_7",
+=======
+                condition=Q(goal_per_week__gte=1),
+                name="chk_goal_per_week_gte_1",
+>>>>>>> Stashed changes
             ),
         ]
 
@@ -60,6 +65,7 @@ class CheckIn(models.Model):
 
     checkin_date = models.DateField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="done")
+    count = models.PositiveIntegerField(default=1)
     note = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -73,4 +79,4 @@ class CheckIn(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.habit.title} @ {self.checkin_date} = {self.status}"
+        return f"{self.habit.title} @ {self.checkin_date} = {self.status} x{self.count}"

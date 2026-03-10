@@ -37,18 +37,10 @@ class Habit(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["user", "title"], name="uniq_user_title"),
             models.CheckConstraint(
-<<<<<<< HEAD
-                condition=Q(goal_per_week__gte=1) & Q(goal_per_week__lte=7),
-                name="chk_goal_per_week_1_7",
-=======
-
-
                 condition=Q(goal_per_week__gte=1),
                 name="chk_goal_per_week_gte_1",
-
->>>>>>> dev-yjh
-            ),
-        ]
+        ),
+    ]
 
     def __str__(self):
         return self.title

@@ -117,9 +117,14 @@ def login_api(request):
     }, status=200)
 
 
-@login_required
 @require_http_methods(["GET"])
 def me_api(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "success": False,
+            "error": "login required"
+        }, status=401)
+
     return JsonResponse({
         "success": True,
         "username": request.user.username

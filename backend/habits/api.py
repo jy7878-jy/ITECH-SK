@@ -226,5 +226,7 @@ def habit_delete(request, habit_id):
     except Habit.DoesNotExist:
         return JsonResponse({"error": "habit not found"}, status=404)
 
-    habit.delete()
+    habit.is_active = False
+    habit.save()
+
     return JsonResponse({"message": "habit deleted"})

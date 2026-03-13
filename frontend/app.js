@@ -3,11 +3,10 @@
  * Interacts with Django REST API endpoints
  */
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api/habits';
-const BACKEND_BASE_URL = 'http://127.0.0.1:8000';
-
+const API_BASE_URL = window.AppConfig.habitsApiBaseUrl;
 // Initialize application on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await window.AppUtils.ensureCsrfCookie();
     fetchHabits();
     loadCurrentUser();
 
@@ -26,6 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', handleLogout);
     }
+    const refreshBtn = document.getElementById('refreshHabitsBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', fetchHabits);
+    }
+
 });
 /**
  * Screen reader announcer for Accessibility
@@ -91,7 +95,7 @@ function escapeTitle(title) {
  */
 function handleAuthFailure(response) {
     if (response.status === 401) {
-        window.location.assign('http://127.0.0.1:5500/frontend/login.html');
+        window.location.assign('login.html');
         return true;
     }
     return false;
@@ -102,7 +106,7 @@ async function loadCurrentUser() {
     if (!welcomeText) return;
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/api/me/', {
+        const response = await fetch(`${window.AppConfig.apiBaseUrl}/me/`, {
             credentials: 'include'
         });
 
@@ -267,7 +271,7 @@ async function handleCreateHabit(event) {
     try {
         const response = await fetch(`${API_BASE_URL}/create/`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.AppUtils.getCsrfToken() },
             body: JSON.stringify(payload),
             credentials: 'include'
         });
@@ -310,7 +314,7 @@ async function checkInHabit(habitId, habitTitle) {
     try {
         const response = await fetch(`${API_BASE_URL}/${habitId}/checkin/`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.AppUtils.getCsrfToken() },
             body: JSON.stringify(payload),
             credentials: 'include'
         });
@@ -342,7 +346,7 @@ async function deleteHabit(habitId, habitTitle) {
     try {
         const response = await fetch(`${API_BASE_URL}/${habitId}/delete/`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.AppUtils.getCsrfToken() },
             credentials: 'include'
         });
 
@@ -367,13 +371,15 @@ async function deleteHabit(habitId, habitTitle) {
  */
 async function handleLogout() {
     try {
-        const response = await fetch('http://127.0.0.1:8000/api/logout/', {
+        const csrfToken = window.AppUtils.getCsrfToken();
+        const response = await fetch(`${window.AppConfig.apiBaseUrl}/logout/`, {
             method: 'POST',
-            credentials: 'include'
+            credentials: 'include',
+            headers: { 'X-CSRFToken': csrfToken }
         });
 
         if (response.ok) {
-            window.location.href = 'http://127.0.0.1:5500/frontend/login.html';
+            window.location.href = 'login.html';
         } else {
             showMessage('Logout failed.', 'danger');
         }

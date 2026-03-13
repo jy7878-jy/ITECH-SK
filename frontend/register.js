@@ -1,7 +1,8 @@
-console.log("REGISTER JS DIRECT REDIRECT");
-const BACKEND_BASE_URL = 'http://127.0.0.1:8000';
+const BACKEND_BASE_URL = window.AppConfig.backendBaseUrl;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await window.AppUtils.ensureCsrfCookie();
+
     const form = document.getElementById('registerForm');
     if (form) {
         form.addEventListener('submit', handleRegister);
@@ -37,23 +38,18 @@ async function handleRegister(event) {
     try {
         const response = await fetch(`${BACKEND_BASE_URL}/api/register/`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': window.AppUtils.getCsrfToken()
+            },
             body: JSON.stringify(payload),
             credentials: 'include'
         });
 
-        let result = {};
-        try {
-            result = await response.json();
-        } catch (e) {
-            console.log('REGISTER json parse failed');
-        }
-
-        console.log('REGISTER status:', response.status);
-        console.log('REGISTER result:', result);
+        const result = await response.json();
 
         if (response.ok) {
-           window.location.href = 'http://127.0.0.1:5500/frontend/login.html?registered=1';
+            window.location.href = 'login.html?registered=1';
             return;
         }
 

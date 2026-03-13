@@ -1,17 +1,14 @@
-from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
 
-from .models import Habit, CheckIn
+from .models import CheckIn, Habit
 
 User = get_user_model()
 
 
 class HabitModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser",
-            password="12345678"
-        )
+        self.user = User.objects.create_user(username="testuser", password="12345678")
 
     def test_create_habit(self):
         habit = Habit.objects.create(
@@ -19,7 +16,7 @@ class HabitModelTest(TestCase):
             title="Drink Water",
             description="8 cups",
             frequency_type="daily",
-            goal_per_week=7
+            goal_per_week=7,
         )
 
         self.assertEqual(habit.title, "Drink Water")
@@ -30,16 +27,13 @@ class HabitModelTest(TestCase):
 
 class CheckInModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser",
-            password="12345678"
-        )
+        self.user = User.objects.create_user(username="testuser", password="12345678")
         self.habit = Habit.objects.create(
             user=self.user,
             title="Morning Run",
             description="Run 15 minutes",
             frequency_type="daily",
-            goal_per_week=5
+            goal_per_week=5,
         )
 
     def test_create_checkin(self):
@@ -47,7 +41,7 @@ class CheckInModelTest(TestCase):
             habit=self.habit,
             checkin_date="2026-03-06",
             status="done",
-            note="good day"
+            note="good day",
         )
 
         self.assertEqual(checkin.habit, self.habit)
@@ -58,16 +52,14 @@ class CheckInModelTest(TestCase):
 class HabitApiTest(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(
-            username="testuser",
-            password="12345678"
-        )
+        self.user = User.objects.create_user(username="testuser", password="12345678")
+        self.client.force_login(self.user)
 
     def test_habit_create_api(self):
         response = self.client.post(
             "/api/habits/create/",
-            data='{"title": "Read Books", "description": "20 minutes", "frequency_type": "daily", "goal_per_week": 7}',
-            content_type="application/json"
+            data='{"title": "Read Books", "description": "20 minutes", "frequency": "daily", "goal_per_week": 7}',
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 200)
@@ -80,7 +72,7 @@ class HabitApiTest(TestCase):
             title="Study",
             description="Study 1 hour",
             frequency_type="daily",
-            goal_per_week=6
+            goal_per_week=6,
         )
 
         response = self.client.get("/api/habits/")
@@ -93,13 +85,13 @@ class HabitApiTest(TestCase):
             title="Exercise",
             description="Gym session",
             frequency_type="daily",
-            goal_per_week=5
+            goal_per_week=5,
         )
 
         response = self.client.post(
             f"/api/habits/{habit.id}/checkin/",
             data='{"date": "2026-03-06", "status": "done", "note": "great"}',
-            content_type="application/json"
+            content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 200)

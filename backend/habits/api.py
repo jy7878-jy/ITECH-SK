@@ -3,7 +3,6 @@ from datetime import date, timedelta
 
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 from django.db.models import Sum
 
@@ -60,7 +59,6 @@ def habits_list(request):
 # Create a new habit
 # POST /api/habits/create/
 # -------------------------
-@csrf_exempt
 @require_http_methods(["POST"])
 def habit_create(request):
     if not request.user.is_authenticated:
@@ -121,7 +119,6 @@ def habit_create(request):
 # Save or update progress
 # POST /api/habits/<id>/checkin/
 # -------------------------
-@csrf_exempt
 @require_http_methods(["POST"])
 def checkin(request, habit_id):
     if not request.user.is_authenticated:
@@ -215,7 +212,6 @@ def checkin(request, habit_id):
 # Delete a habit
 # POST /api/habits/<id>/delete/
 # -------------------------
-@csrf_exempt
 @require_http_methods(["POST"])
 def habit_delete(request, habit_id):
     if not request.user.is_authenticated:

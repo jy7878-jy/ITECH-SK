@@ -1,14 +1,14 @@
 import json
+import os
 
 from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth.forms import UserCreationForm
 
-FRONTEND_BASE_URL = "http://127.0.0.1:5500/frontend"
+FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "http://127.0.0.1:5500/frontend")
 
 
 def dashboard_view(request):
@@ -23,26 +23,18 @@ def register_view(request):
     return redirect(f"{FRONTEND_BASE_URL}/register.html")
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def logout_api(request):
     logout(request)
-    return JsonResponse({
-        "success": True,
-        "message": "logged out"
-    })
+    return JsonResponse({"success": True, "message": "logged out"})
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def register_api(request):
     try:
         body = json.loads(request.body)
     except Exception:
-        return JsonResponse({
-            "success": False,
-            "error": "Invalid JSON"
-        }, status=400)
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
 
     username = str(body.get("username", "")).strip()
     password1 = body.get("password1", "")
@@ -59,12 +51,10 @@ def register_api(request):
         return JsonResponse({
             "success": True,
             "message": "registration successful",
-            "redirect": "http://127.0.0.1:5500/frontend/login.html"
+            "redirect": f"{FRONTEND_BASE_URL}/login.html"
         }, status=200)
 
-    errors = {}
-    for field, field_errors in form.errors.items():
-        errors[field] = [str(err) for err in field_errors]
+    errors = {field: [str(err) for err in field_errors] for field, field_errors in form.errors.items()}
 
     first_error = "Registration failed."
     for field_errors in errors.values():
@@ -72,40 +62,26 @@ def register_api(request):
             first_error = field_errors[0]
             break
 
-    return JsonResponse({
-        "success": False,
-        "error": first_error,
-        "errors": errors
-    }, status=400)
+    return JsonResponse({"success": False, "error": first_error, "errors": errors}, status=400)
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def login_api(request):
     try:
         body = json.loads(request.body)
     except Exception:
-        return JsonResponse({
-            "success": False,
-            "error": "Invalid JSON"
-        }, status=400)
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
 
     username = str(body.get("username", "")).strip()
     password = body.get("password", "")
 
     if not username or not password:
-        return JsonResponse({
-            "success": False,
-            "error": "Username and password are required."
-        }, status=400)
+        return JsonResponse({"success": False, "error": "Username and password are required."}, status=400)
 
     user = authenticate(request, username=username, password=password)
 
     if user is None:
-        return JsonResponse({
-            "success": False,
-            "error": "Invalid username or password."
-        }, status=401)
+        return JsonResponse({"success": False, "error": "Invalid username or password."}, status=401)
 
     login(request, user)
 
@@ -113,19 +89,19 @@ def login_api(request):
         "success": True,
         "message": "login successful",
         "username": user.username,
-        "redirect": "http://127.0.0.1:5500/frontend/index.html"
+        "redirect": f"{FRONTEND_BASE_URL}/index.html"
     }, status=200)
+
+
+@ensure_csrf_cookie
+@require_http_methods(["GET"])
+def csrf_api(request):
+    return JsonResponse({"success": True})
 
 
 @require_http_methods(["GET"])
 def me_api(request):
     if not request.user.is_authenticated:
-        return JsonResponse({
-            "success": False,
-            "error": "login required"
-        }, status=401)
+        return JsonResponse({"success": False, "error": "login required"}, status=401)
 
-    return JsonResponse({
-        "success": True,
-        "username": request.user.username
-    })
+    return JsonResponse({"success": True, "username": request.user.username})

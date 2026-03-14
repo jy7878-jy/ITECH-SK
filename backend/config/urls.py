@@ -18,6 +18,7 @@ urlpatterns = [
     path("api/register/", views.register_api, name="register_api"),
     path("api/logout/", views.logout_api, name="logout_api"),
     path("api/me/", views.me_api, name="me_api"),
+    path("api/csrf/", views.csrf_api, name="csrf_api"),
 
     # habits APIs
     path("api/habits/", include("habits.urls")),

@@ -1,6 +1,7 @@
 (function () {
+    const PROD_BACKEND_URL = ''; 
     const configuredBackend = document.body?.dataset?.backendBaseUrl;
-    const backendBaseUrl = configuredBackend || `${window.location.protocol}//${window.location.hostname}:8000`;
+    const backendBaseUrl = PROD_BACKEND_URL || configuredBackend || `${window.location.protocol}//${window.location.hostname}:8000`;
     const apiBaseUrl = `${backendBaseUrl}/api`;
 
     function getCookie(name) {

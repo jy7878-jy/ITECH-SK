@@ -3,3 +3,5 @@ Django==5.2.12
 sqlparse==0.5.5
 tzdata==2025.3
 django-cors-headers==4.7.0
+gunicorn>=21.2.0
+whitenoise>=6.5.0

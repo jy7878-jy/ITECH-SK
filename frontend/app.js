@@ -210,8 +210,8 @@ async function fetchHabits() {
         const response = await fetch(`${API_BASE_URL}/`, {
             credentials: 'include'
         });
-
         if (handleAuthFailure(response)) return;
+        document.body.style.visibility = "visible";
 
         const data = await response.json();
 
@@ -234,10 +234,10 @@ async function fetchHabits() {
         }
     } catch (err) {
         console.error('Fetch Error:', err);
+        document.body.style.visibility = "visible"; 
         container.innerHTML = `<div class="alert alert-danger">Error: Could not connect to backend server.</div>`;
     }
 }
-
 /**
  * POST: Create a new habit via AJAX
  */

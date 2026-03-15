@@ -1,6 +1,6 @@
 (function () {
     const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-    const backendBaseUrl = window.__APP_BACKEND_BASE_URL__ || (isLocal ? 'http://127.0.0.1:8000' : 'https://itech-sk.onrender.com');
+    const backendBaseUrl = window.__APP_BACKEND_BASE_URL__ || (isLocal ? 'http://127.0.0.1:8000' : '');
 
     const apiBaseUrl = `${backendBaseUrl}/api`;
 
@@ -14,10 +14,14 @@
     }
 
     async function ensureCsrfCookie() {
-        await fetch(`${apiBaseUrl}/csrf/`, {
-            method: 'GET',
-            credentials: 'include'
-        });
+        try {
+            await fetch(`${apiBaseUrl}/csrf/`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+        } catch (error) {
+            console.warn("CSRF fetch failed. Backend might be asleep or proxy misconfigured.", error);
+        }
     }
 
     window.AppConfig = {

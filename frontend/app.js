@@ -4,9 +4,15 @@
  */
 
 const API_BASE_URL = window.AppConfig.habitsApiBaseUrl;
+
 // Initialize application on DOM ready
 document.addEventListener('DOMContentLoaded', async () => {
-    await window.AppUtils.ensureCsrfCookie();
+    try {
+        await window.AppUtils.ensureCsrfCookie();
+    } catch (error) {
+        console.warn("Could not fetch CSRF token. Backend might be asleep or unreachable.", error);
+    }
+    
     fetchHabits();
     loadCurrentUser();
 
@@ -30,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         refreshBtn.addEventListener('click', fetchHabits);
     }
 });
+
 /**
  * Screen reader announcer for Accessibility
  */
@@ -119,6 +126,7 @@ async function loadCurrentUser() {
         welcomeText.textContent = 'Welcome';
     }
 }
+
 /**
  * Render one habit card safely using DOM methods (XSS prevention)
  */
@@ -226,10 +234,17 @@ async function fetchHabits() {
         const response = await fetch(`${API_BASE_URL}/`, {
             credentials: 'include'
         });
+        
+        // Handle unauthorized (redirects to login)
         if (handleAuthFailure(response)) return;
 
-        const data = await response.json();
+        // Reveal the main UI and hide the initial loading screen since we are authenticated
+        const pageLoader = document.getElementById('pageLoading');
+        const mainContent = document.getElementById('mainContent');
+        if (pageLoader) pageLoader.classList.add('d-none');
+        if (mainContent) mainContent.classList.remove('d-none');
 
+        const data = await response.json();
         container.innerHTML = '';
 
         if (data.habits && data.habits.length > 0) {
@@ -246,9 +261,16 @@ async function fetchHabits() {
         }
     } catch (err) {
         console.error('Fetch Error:', err);
+        // Reveal UI even if there's a connection error so user doesn't see endless spinning
+        const pageLoader = document.getElementById('pageLoading');
+        const mainContent = document.getElementById('mainContent');
+        if (pageLoader) pageLoader.classList.add('d-none');
+        if (mainContent) mainContent.classList.remove('d-none');
+        
         container.innerHTML = `<div class="alert alert-danger">Error: Could not connect to backend server.</div>`;
     }
 }
+
 /**
  * POST: Create a new habit via AJAX
  */

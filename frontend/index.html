@@ -13,7 +13,16 @@
 
 <div id="aria-announcer" aria-live="polite" class="visually-hidden"></div>
 
-<div class="container mt-5">
+<div id="pageLoading" class="d-flex justify-content-center align-items-center vh-100">
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Checking authentication...</span>
+        </div>
+        <p class="mt-3 text-muted fw-semibold">Loading StreakMate...</p>
+    </div>
+</div>
+
+<div class="container mt-5 d-none" id="mainContent">
 
     <div id="messageBox" class="alert d-none" role="alert" aria-live="polite"></div>
 
@@ -138,7 +147,7 @@
                 <div class="text-center py-5 text-muted">
 
                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="visually-hidden">Loading habits...</span>
                     </div>
 
                     <p class="mt-2">

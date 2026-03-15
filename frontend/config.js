@@ -1,5 +1,5 @@
 (function () {
-    const PROD_BACKEND_URL = ''; 
+    const PROD_BACKEND_URL = 'https://itech-sk.onrender.com';
     const configuredBackend = document.body?.dataset?.backendBaseUrl;
     const backendBaseUrl = PROD_BACKEND_URL || configuredBackend || `${window.location.protocol}//${window.location.hostname}:8000`;
     const apiBaseUrl = `${backendBaseUrl}/api`;

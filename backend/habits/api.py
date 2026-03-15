@@ -203,9 +203,10 @@ def checkin(request, habit_id):
         return JsonResponse({"error": "invalid habit frequency"}, status=400)
 
     except Exception as e:
+        # Hide raw python exception trace from client
         return JsonResponse({
-            "error": str(e)
-        }, status=400)
+            "error": "An internal error occurred while saving your check-in."
+        }, status=500)
 
 
 # -------------------------

@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (refreshBtn) {
         refreshBtn.addEventListener('click', fetchHabits);
     }
-
 });
 /**
  * Screen reader announcer for Accessibility
@@ -84,13 +83,6 @@ function updateGoalUI() {
 }
 
 /**
- * Escape single quotes in title for inline onclick
- */
-function escapeTitle(title) {
-    return String(title).replace(/'/g, "\\'");
-}
-
-/**
  * Handle unauthenticated API responses
  */
 function handleAuthFailure(response) {
@@ -128,76 +120,100 @@ async function loadCurrentUser() {
     }
 }
 /**
- * Render one habit card
+ * Render one habit card safely using DOM methods (XSS prevention)
  */
-function renderHabitCard(habit) {
-    const isDaily = habit.frequency === 'daily';
-    const isWeekly = habit.frequency === 'weekly';
+function createHabitCard(habit) {
+    const col = document.createElement('div');
+    col.className = 'col-md-6';
 
-    let statusBadges = `
-        <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-capitalize">${habit.frequency}</span>
-    `;
+    const card = document.createElement('div');
+    card.className = 'card h-100 border-0 shadow-sm';
 
-    if (isDaily) {
-        statusBadges += habit.done_today
-            ? `<span class="badge bg-success-subtle text-success border border-success-subtle">Completed Today</span>`
-            : `<span class="badge bg-light text-dark border">Not completed today</span>`;
-    }
+    const cardBody = document.createElement('div');
+    cardBody.className = 'card-body';
 
-    if (isWeekly) {
-        statusBadges += `
-            <span class="badge bg-info-subtle text-info border border-info-subtle">Target: ${habit.goal_per_week}/week</span>
-            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">This week: ${habit.weekly_progress || 0}/${habit.goal_per_week}</span>
-        `;
+    const title = document.createElement('h5');
+    title.className = 'card-title fw-bold text-dark';
+    title.textContent = habit.title;
+
+    const desc = document.createElement('p');
+    desc.className = 'card-text text-secondary mb-3';
+    desc.textContent = habit.description || 'No description provided';
+
+    const badgeContainer = document.createElement('div');
+    badgeContainer.className = 'd-flex flex-wrap gap-2 mb-3';
+
+    const freqBadge = document.createElement('span');
+    freqBadge.className = 'badge bg-primary-subtle text-primary border border-primary-subtle text-capitalize';
+    freqBadge.textContent = habit.frequency;
+    badgeContainer.appendChild(freqBadge);
+
+    if (habit.frequency === 'daily') {
+        const dailyBadge = document.createElement('span');
+        if (habit.done_today) {
+            dailyBadge.className = 'badge bg-success-subtle text-success border border-success-subtle';
+            dailyBadge.textContent = 'Completed Today';
+        } else {
+            dailyBadge.className = 'badge bg-light text-dark border';
+            dailyBadge.textContent = 'Not completed today';
+        }
+        badgeContainer.appendChild(dailyBadge);
+    } else {
+        const targetBadge = document.createElement('span');
+        targetBadge.className = 'badge bg-info-subtle text-info border border-info-subtle';
+        targetBadge.textContent = `Target: ${habit.goal_per_week}/week`;
+        badgeContainer.appendChild(targetBadge);
+
+        const progressBadge = document.createElement('span');
+        progressBadge.className = 'badge bg-warning-subtle text-warning border border-warning-subtle';
+        progressBadge.textContent = `This week: ${habit.weekly_progress || 0}/${habit.goal_per_week}`;
+        badgeContainer.appendChild(progressBadge);
 
         if ((habit.weekly_progress || 0) >= habit.goal_per_week) {
-            statusBadges += `<span class="badge bg-success-subtle text-success border border-success-subtle">Goal reached</span>`;
+            const successBadge = document.createElement('span');
+            successBadge.className = 'badge bg-success-subtle text-success border border-success-subtle';
+            successBadge.textContent = 'Goal reached';
+            badgeContainer.appendChild(successBadge);
         }
     }
 
-    let actionButton = '';
+    const actionContainer = document.createElement('div');
+    actionContainer.className = 'd-grid gap-2';
 
-    if (isDaily) {
-        actionButton = habit.done_today
-            ? `
-                <button class="btn btn-success btn-sm" disabled>
-                    ✔ Completed Today
-                </button>
-            `
-            : `
-                <button onclick="checkInHabit(${habit.id}, '${escapeTitle(habit.title)}')" class="btn btn-outline-success btn-sm">
-                    ✔ Mark as Done Today
-                </button>
-            `;
+    if (habit.frequency === 'daily') {
+        const actionBtn = document.createElement('button');
+        if (habit.done_today) {
+            actionBtn.className = 'btn btn-success btn-sm';
+            actionBtn.disabled = true;
+            actionBtn.textContent = '✔ Completed Today';
+        } else {
+            actionBtn.className = 'btn btn-outline-success btn-sm';
+            actionBtn.textContent = '✔ Mark as Done Today';
+            actionBtn.addEventListener('click', () => checkInHabit(habit.id, habit.title));
+        }
+        actionContainer.appendChild(actionBtn);
+    } else {
+        const actionBtn = document.createElement('button');
+        actionBtn.className = 'btn btn-outline-success btn-sm';
+        actionBtn.textContent = '＋ Add 1 Weekly Progress';
+        actionBtn.addEventListener('click', () => checkInHabit(habit.id, habit.title));
+        actionContainer.appendChild(actionBtn);
     }
 
-    if (isWeekly) {
-        actionButton = `
-            <button onclick="checkInHabit(${habit.id}, '${escapeTitle(habit.title)}')" class="btn btn-outline-success btn-sm">
-                ＋ Add 1 Weekly Progress
-            </button>
-        `;
-    }
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn btn-outline-danger btn-sm';
+    deleteBtn.textContent = 'Delete Habit';
+    deleteBtn.addEventListener('click', () => deleteHabit(habit.id, habit.title));
+    actionContainer.appendChild(deleteBtn);
 
-    return `
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title fw-bold text-dark">${habit.title}</h5>
-                <p class="card-text text-secondary mb-3">${habit.description || 'No description provided'}</p>
+    cardBody.appendChild(title);
+    cardBody.appendChild(desc);
+    cardBody.appendChild(badgeContainer);
+    cardBody.appendChild(actionContainer);
+    card.appendChild(cardBody);
+    col.appendChild(card);
 
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                    ${statusBadges}
-                </div>
-
-                <div class="d-grid gap-2">
-                    ${actionButton}
-                    <button onclick="deleteHabit(${habit.id}, '${escapeTitle(habit.title)}')" class="btn btn-outline-danger btn-sm">
-                        Delete Habit
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
+    return col;
 }
 
 /**
@@ -211,7 +227,6 @@ async function fetchHabits() {
             credentials: 'include'
         });
         if (handleAuthFailure(response)) return;
-        document.body.style.visibility = "visible";
 
         const data = await response.json();
 
@@ -219,10 +234,7 @@ async function fetchHabits() {
 
         if (data.habits && data.habits.length > 0) {
             data.habits.forEach(habit => {
-                const col = document.createElement('div');
-                col.className = 'col-md-6';
-                col.innerHTML = renderHabitCard(habit);
-                container.appendChild(col);
+                container.appendChild(createHabitCard(habit));
             });
             announceMessage('Successfully updated habit list.');
         } else {
@@ -234,7 +246,6 @@ async function fetchHabits() {
         }
     } catch (err) {
         console.error('Fetch Error:', err);
-        document.body.style.visibility = "visible"; 
         container.innerHTML = `<div class="alert alert-danger">Error: Could not connect to backend server.</div>`;
     }
 }

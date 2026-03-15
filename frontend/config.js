@@ -1,5 +1,7 @@
 (function () {
-    const backendBaseUrl = window.location.origin;
+    const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+    const backendBaseUrl = window.__APP_BACKEND_BASE_URL__ || (isLocal ? 'http://127.0.0.1:8000' : 'https://itech-sk.onrender.com');
+
     const apiBaseUrl = `${backendBaseUrl}/api`;
 
     function getCookie(name) {

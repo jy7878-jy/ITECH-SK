@@ -6,13 +6,10 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DEBUG = True 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "itech-sk.onrender.com",
-    ".onrender.com"
-]
+
+# Env-driven settings
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,itech-sk.onrender.com,.onrender.com").split(",")
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-change-me")
 INSTALLED_APPS = [
@@ -32,6 +29,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware', # Restored for security
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -81,12 +79,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
-CORS_ALLOW_ALL_ORIGINS = True 
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://lustrous-crumble-5fcddd.netlify.app",
-    "http://127.0.0.1:5500"
-]
+# Strict Whitelist for CORS and CSRF
+CORS_ALLOWED_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS", 
+    "http://127.0.0.1:5500,http://localhost:5500,https://lustrous-crumble-5fcddd.netlify.app"
+).split(",")
+
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    "CSRF_TRUSTED_ORIGINS", 
+    "http://127.0.0.1:5500,http://localhost:5500,https://lustrous-crumble-5fcddd.netlify.app"
+).split(",")
 
 CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SAMESITE = 'None'

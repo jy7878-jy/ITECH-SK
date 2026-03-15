@@ -52,3 +52,23 @@ class HabitApiTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(CheckIn.objects.count(), 1)
         self.assertEqual(CheckIn.objects.first().status, "done")
+
+    def test_habit_create_unauthenticated(self):
+        unauth_client = Client()
+        response = unauth_client.post(
+            "/api/habits/create/",
+            data='{"title": "Fail", "frequency": "daily"}',
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()["error"], "login required")
+
+    def test_habit_create_bad_data(self):
+        # Missing title test
+        response = self.client.post(
+            "/api/habits/create/",
+            data='{"description": "No title", "frequency": "daily"}',
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("title is required", response.json()["error"])

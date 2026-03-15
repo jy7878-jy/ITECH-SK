@@ -9,16 +9,14 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body style="visibility: hidden;">
+<body>
 
 <div id="aria-announcer" aria-live="polite" class="visually-hidden"></div>
 
 <div class="container mt-5">
 
-    <!-- page message -->
-    <div id="messageBox" class="alert d-none" role="alert"></div>
+    <div id="messageBox" class="alert d-none" role="alert" aria-live="polite"></div>
 
-    <!-- User bar -->
     <div class="d-flex justify-content-end align-items-center mb-3">
         <span class="me-3 text-muted" id="welcomeText">Welcome</span>
 
@@ -27,7 +25,6 @@
         </button>
     </div>
 
-    <!-- Title -->
     <header class="text-center mb-5">
         <h1 class="display-4 text-primary fw-bold">StreakMate</h1>
         <p class="lead text-muted">
@@ -37,7 +34,6 @@
 
     <div class="row">
 
-        <!-- Create Habit -->
         <div class="col-md-4 mb-4">
 
             <div class="card shadow-sm border-0">
@@ -87,7 +83,7 @@
                         </div>
 
                         <div class="mb-3 d-none" id="goalSection">
-                            <label class="form-label fw-semibold" id="goalLabel">
+                            <label class="form-label fw-semibold" id="goalLabel" for="habitGoal">
                                 Weekly Target
                             </label>
 
@@ -122,7 +118,6 @@
 
         </div>
 
-        <!-- Habit List -->
         <div class="col-md-8">
 
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -138,11 +133,13 @@
 
             </div>
 
-            <div id="habitList" class="row g-3">
+            <div id="habitList" class="row g-3" aria-live="polite">
 
                 <div class="text-center py-5 text-muted">
 
-                    <div class="spinner-border text-primary"></div>
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
 
                     <p class="mt-2">
                         Connecting to server...

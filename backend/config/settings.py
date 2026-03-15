@@ -6,18 +6,15 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-def env_bool(name, default=False):
-    return os.getenv(name, str(default)).lower() in {"1", "true", "yes", "on"}
-
-def env_list(name, default=""):
-    value = os.getenv(name, default)
-    return [item.strip() for item in value.split(",") if item.strip()]
+DEBUG = True 
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "itech-sk.onrender.com",
+    ".onrender.com"
+]
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-change-me")
-DEBUG = env_bool("DJANGO_DEBUG", True)
-ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,.onrender.com")
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -26,7 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'habits',
+    'habits',   
 ]
 
 MIDDLEWARE = [
@@ -35,7 +32,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -59,7 +56,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -86,16 +82,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
-CORS_ALLOWED_ORIGINS = [
-    "https://lustrous-crumble-5fcddd.netlify.app",
-    "http://127.0.0.1:5500",
-    "http://localhost:5500"
-]
+CORS_ALLOW_ALL_ORIGINS = True 
 
 CSRF_TRUSTED_ORIGINS = [
     "https://lustrous-crumble-5fcddd.netlify.app",
-    "http://127.0.0.1:5500",
-    "http://localhost:5500"
+    "http://127.0.0.1:5500"
 ]
 
 CORS_ALLOW_CREDENTIALS = True

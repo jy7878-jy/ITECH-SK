@@ -54,4 +54,6 @@ python manage.py test
 ## Configuration notes
 
 - All backend security/deployment-sensitive values are env-driven (`DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, `CSRF_TRUSTED_ORIGINS`).
-- Frontend JS uses a configurable backend base URL (defaults to `http://<current-host>:8000`).
+- **Frontend API URL:** The frontend automatically determines the backend URL (see `frontend/config.js`):
+  - **Production:** Uses a same-origin empty prefix via Netlify `_redirects` proxy to bypass CORS and iOS ITP strict third-party cookie blocking.
+  - **Local Development:** Fallbacks to `http://127.0.0.1:8000`. No manual URL changes are needed for local testing.
